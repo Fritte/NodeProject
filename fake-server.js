@@ -6,6 +6,9 @@
 var express = require('express');
 var app = express();
 var moment = require('moment');
+var find = require('array-find');
+
+var constants = require('./lib/constants');
 
 var serverPort = process.argv[2] || 3001;
 var serverAddress = "localhost:" + serverPort;
@@ -47,7 +50,7 @@ app.get('/api/getcurrentgroup/bl1', function (req, res) {
         'GroupID': 14588
     };
 
-    res.send(JSON.stringify(matchday, null, 4));
+    res.send(JSON.stringify(matchday));
 });
 
 /**
@@ -99,8 +102,19 @@ app.get('/api/startMatch', function (req, res) {
         match['MatchIsRunning'] = true;
 
         var refreshIntervalId = setInterval(function(){
-            console.log("Random event");
-        }, 1000);
+            // Goal
+            if(Math.random() < 0.5){
+                // Goal for away team
+                var endResult = find(match.MatchResults, function(element, index, arr){
+                   return element.ResultOrderID == 1;
+                });
+                if(Math.random() < 0.5){
+                    endResult.PointsTeam1 += 1;
+                } else{
+                    endResult.PointsTeam2 += 1;
+                }
+            }
+        }, constants.RANDOM_EVENT_IN_SECONDS * 1000);
 
         // end match
         setTimeout(function () {
@@ -135,21 +149,22 @@ function addMatch(startDate, endDate) {
     match['MatchID'] = nextMatchId++;
     match['MatchIsFinished'] = false;
     match['MatchIsRunning'] = false;
-    matches.push(match);
 
     match['MatchResults'] = [{
         'ResultID': nextResultId,
         "ResultName": "Endergebnis",
-        "PointsTeam1": null, "PointsTeam2": null,
+        "PointsTeam1": 0, "PointsTeam2": 0,
         "ResultOrderID": 1,
         "ResultDescription": "Ergebnis nach Ende der offiziellen Spielzeit"
     }, {
         'ResultID': nextResultId + 1,
         "ResultName": "Halbzeitergebnis",
-        "PointsTeam1": null, "PointsTeam2": null,
+        "PointsTeam1": 0, "PointsTeam2": 0,
         "ResultOrderID": 2,
         "ResultDescription": "Ergebnis nach Ende der ersten Halbzeit"
     }];
+
+    matches.push(match);
     nextResultId += 2;
     return match;
 }
