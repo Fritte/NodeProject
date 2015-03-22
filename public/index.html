@@ -20,6 +20,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Bet against your friend</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
@@ -34,7 +35,7 @@
 
 <section ng-controller="matchController">
     <!-- Find Vertical from and put ng-repeat-->
-    <form style="width: 30%" role="form" name="live_match_table"
+    <!--form style="width: 30%" role="form" name="live_match_table"
           ng-submit="live_match_table.$valid && matchTableCtrl.getMatches()">
         <div class="form-group">
             <label for="betAmount">Your Bet*</label> <input type="text"
@@ -51,7 +52,20 @@
         </select>
         </div>
         <button type="submit" class="btn btn-primary">Place My Bet</button>
-    </form>
+    </form -->
+    <form class="form-inline" role="form">
+  <div class="form-group">
+            <label for="betAmount">Your Amount*</label> <select class="form-control"
+                                                                name="betAmount" id="betAmount" required>
+            <option value="100" selected>100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500">500</option>
+        </select>
+        </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
 </section>
 </body>
 </html>
