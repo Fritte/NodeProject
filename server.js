@@ -44,8 +44,15 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-    console.log('a user connected');
-    socket.broadcast.emit('hello from new User', '@all');
+    socket.on('get matches', function(){
+        //get match data from fake API
+
+        //TODO: Ajax get to fake server
+        //Pass currently running matches with event 'send matches'
+
+        var matchId = "someID";
+        io.emit('send matches', matchId);
+    });
 });
 
 http.listen(serverPort, function(){
