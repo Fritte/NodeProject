@@ -1,24 +1,31 @@
 (function() {
-	var mobility_services = angular.module('Mobility Services', []);
-	mobility_services.controller('matchController', function($scope, $http) {
-		$scope.status = "";
-		this.placeBet = function() {
-			var dataObj = {
-				betAmount : document.getElementById('betAmount').value
+	var BetYourFriends = angular.module('BetYourFriends', []);
+	BetYourFriends.controller('matchController', function($scope) {
+		var socket = io();
+		this.placeBet = function(matchId, index) {
+			var betDetails = {
+					userName: 'Ahmed',//document.getElementById('userName').value,
+					matchId: matchId,
+					betAmount: document.getElementById('betAmount'+index).value,
+					index: index
 			};
-			$http({
-				url : '/placeBet/'+betAmount,
-				method : "GET",
-				data : dataObj,
-				headers : {
-					'Content-Type' : 'application/json',
-					'Accept' : 'application/json'
-				}
-			}).success(function(data, status, headers, config) {
-				$scope.status= "Here are your matches";
-			}).error(function(data, status, headers, config) {
-				$scope.status = "Error occured. Please try again later.";
-			});
+		    socket.emit('place bet', betDetails);
+		    //return false;
 		};
+		socket.on('send all matches', function(matches){
+	        $scope.matches = matches;
+	        for(i=0;i<matches.length;i++){
+	        	$scope.matches[i].bets = [];
+	        }
+	        $scope.$apply();
+	    });
+		socket.on('show bet', function(betDetails){
+			var bet = {
+					userName: betDetails.userName,
+					betAmount: betDetails.betAmount
+			};
+	        $scope.matches[betDetails.index].bets= ($scope.matches[betDetails.index].bets).concat(bet);//Update bet details in the table
+	        $scope.$apply();
+	    });
 	});
 })();

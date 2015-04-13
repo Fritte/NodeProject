@@ -41,20 +41,113 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-
+	
+	//Using 2 matches as test data
+	 /*var match = 
+     [{
+         TimeZoneID: "W. Europe Standard Time",
+         matchId: 1,
+         Location: null,
+         NumberOfViewers: null,
+         Team1: {
+             TeamId: 40,
+             TeamName: "Bayern MÃ¼nchen",
+             TeamIconUrl: "http://www.openligadb.de/images/teamicons/Bayern_Muenchen.gif"
+         },
+         Team2: {
+             TeamId: 7,
+             TeamName: "Borussia Dortmund",
+             TeamIconUrl: "http://www.openligadb.de/images/teamicons/Borussia_Dortmund.gif"
+         },
+         MatchDateTimeUTC: "2015-03-22T11:17:01.072Z",
+         MatchDateTime: "2015-03-22T11:17:01.072Z",
+         MatchDateEndTimeUTC: "2015-03-22T11:17:01.072Z",
+         MatchDateEndTime: "2015-03-22T11:17:01.072Z",
+         MatchID: 0,
+         MatchIsFinished: false,
+         MatchIsRunning: true,
+         MatchResults: [
+             {
+                 ResultID: 0,
+                 ResultName: "Endergebnis",
+                 PointsTeam1: 0,
+                 PointsTeam2: 3,
+                 ResultOrderID: 1,
+                 ResultDescription: "Ergebnis nach Ende der offiziellen Spielzeit"
+             },
+             {
+                 ResultID: 1,
+                 ResultName: "Halbzeitergebnis",
+                 PointsTeam1: 0,
+                 PointsTeam2: 0,
+                 ResultOrderID: 2,
+                 ResultDescription: "Ergebnis nach Ende der ersten Halbzeit"
+             }
+         ]
+     },
+     {
+         TimeZoneID: "W. Europe Standard Time",
+         matchId: 2,
+         Location: null,
+         NumberOfViewers: null,
+         Team1: {
+             TeamId: 40,
+             TeamName: "Bayern MÃ¼nchen",
+             TeamIconUrl: "http://www.openligadb.de/images/teamicons/Bayern_Muenchen.gif"
+         },
+         Team2: {
+             TeamId: 7,
+             TeamName: "Borussia Dortmund",
+             TeamIconUrl: "http://www.openligadb.de/images/teamicons/Borussia_Dortmund.gif"
+         },
+         MatchDateTimeUTC: "2015-03-22T11:17:01.072Z",
+         MatchDateTime: "2015-03-22T11:17:01.072Z",
+         MatchDateEndTimeUTC: "2015-03-22T11:17:01.072Z",
+         MatchDateEndTime: "2015-03-22T11:17:01.072Z",
+         MatchID: 0,
+         MatchIsFinished: false,
+         MatchIsRunning: true,
+         MatchResults: [
+             {
+                 ResultID: 0,
+                 ResultName: "Endergebnis",
+                 PointsTeam1: 0,
+                 PointsTeam2: 3,
+                 ResultOrderID: 1,
+                 ResultDescription: "Ergebnis nach Ende der offiziellen Spielzeit"
+             },
+             {
+                 ResultID: 1,
+                 ResultName: "Halbzeitergebnis",
+                 PointsTeam1: 0,
+                 PointsTeam2: 0,
+                 ResultOrderID: 2,
+                 ResultDescription: "Ergebnis nach Ende der ersten Halbzeit"
+             }
+         ]
+     }];
+	io.emit('send all matches', match);
+	*/
+	
     var resultsInterval = setInterval(function () {
         request(fakeServerAddress + apiAdresses.MATCH_DATA_OF_DAY + currentMatchDay, function (error, response, body) {
             var responseFromServer = JSON.parse(response.body);
-
+           
             if(!equal(responseFromServer, lastRequestJSON)){
                 console.log(response.body);
                 lastRequestJSON = responseFromServer;
+                io.emit('send all matches', lastRequestJSON);
                 //TODO: send Data
-
             }
         });
     }, constants.REFRESH_RATE_IN_SECONDS * 1000);
 
+    socket.on('place bet', function(betDetails){
+        //TODO: persisting bets on server, ranking algo
+    	
+    	io.emit('show bet', betDetails);
+    });
+    
     socket.on('disconnect', function () {
         clearInterval(resultsInterval);
     });
