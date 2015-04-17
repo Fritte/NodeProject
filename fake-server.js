@@ -7,7 +7,9 @@ var express = require('express');
 var app = express();
 var moment = require('moment');
 var find = require('array-find');
+var random = require("random-js")();
 
+var teams = require('./lib/fakeServer/teams');
 var constants = require('./lib/constants');
 
 var serverPort = process.argv[2] || 3001;
@@ -16,28 +18,16 @@ var serverAddress = "localhost:" + serverPort;
 var nextMatchId = 0;
 var nextResultId = 0;
 
-var homeTeam = {
-    "TeamId": 40,
-    "TeamName": "Bayern München",
-    "TeamIconUrl": "http://www.openligadb.de/images/teamicons/Bayern_Muenchen.gif"
-};
-var awayTeam = {
-    "TeamId": 7,
-    "TeamName": "Borussia Dortmund",
-    "TeamIconUrl": "http://www.openligadb.de/images/teamicons/Borussia_Dortmund.gif"
-};
-
 var awayTeamGoals;
 var homeTeamGoals;
 
 // currently running matchTemplate
 var matchTemplate = {
     'TimeZoneID': 'W. Europe Standard Time',
-    "matchId": 0,
     "Location": null,
     "NumberOfViewers": null,
-    "Team1": homeTeam,
-    "Team2": awayTeam
+    // "Team1": teams.bundesligaTeams[0],
+    // "Team2": teams.bundesligaTeams[1]
 };
 
 var matches = [];
@@ -49,7 +39,6 @@ app.get('/api/getcurrentgroup/bl1', function (req, res) {
         'GroupOrderId': numMatchDay,
         'GroupID': 14588
     };
-
     res.send(JSON.stringify(matchday));
 });
 
@@ -142,6 +131,15 @@ function clone(a) {
  */
 function addMatch(startDate, endDate) {
     var match = clone(matchTemplate);
+    // get random teams
+    var firstTeam = random.integer(0, teams.bundesligaTeams.length-1);
+    var secondTeam;
+    do{
+        secondTeam = random.integer(0, teams.bundesligaTeams.length-1);
+    }while (secondTeam === firstTeam);
+    match['Team1'] = teams.bundesligaTeams[firstTeam];
+    match['Team2'] = teams.bundesligaTeams[secondTeam];
+
     match['MatchDateTimeUTC'] = startDate.utc();
     match['MatchDateTime'] = startDate;
     match['MatchDateEndTimeUTC'] = endDate.utc();
