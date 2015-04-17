@@ -146,7 +146,7 @@ function addMatch(startDate, endDate) {
     match['MatchDateTime'] = startDate;
     match['MatchDateEndTimeUTC'] = endDate.utc();
     match['MatchDateEndTime'] = endDate;
-    match['MatchID'] = nextMatchId++;
+    match['matchId'] = nextMatchId;
     match['MatchIsFinished'] = false;
     match['MatchIsRunning'] = false;
 
@@ -166,6 +166,7 @@ function addMatch(startDate, endDate) {
 
     matches.push(match);
     nextResultId += 2;
+    nextMatchId++;
     return match;
 }
 
