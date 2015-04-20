@@ -19,7 +19,7 @@
 	<head lang="en">
 		<head lang="en">
 			<meta charset="UTF-8">
-			<title>Bet against your friend</title>
+			<title>BetYourFriends!</title>
 			<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 			<script src="http://localhost:3000/socket.io/socket.io.js"></script>
@@ -31,12 +31,10 @@
 		<body>
 			<script src="scripts/angular.js"></script>
 			<script src="scripts/client-side-io.js"></script>
-			<!-- <script src="scripts/communication.js"></script> !-->
 
 			<section ng-controller="matchController as matchCtrl">
 				<div ng-repeat="match in matches">
 					<form name="betForm" class="form-inline" role="form" ng-submit="betForm.$valid && matchCtrl.placeBet(match.matchId, $index)">
-						{{match.matchId}}
 						<div class="form-group">
 							<label for="betAmount">Your Amount*</label>
 							<select class="form-control" name="betAmount" id="betAmount{{$index}}" required>
@@ -47,12 +45,20 @@
 								<option value="500">500</option>
 							</select>
 						</div>
+						<div class="form-group">
+    						<label>{{match.Team1.TeamName}} Goals</label>
+    						<input type="number" class="form-control" id="t1Goals{{$index}}" required />
+  					    </div>
+						<div class="form-group">
+    						<label>{{match.Team2.TeamName}} Goals</label>
+    						<input type="number" class="form-control" id="t2Goals{{$index}}" required />
+  					    </div>
 						<button type="submit" class="btn btn-default">
 							Place Bet
 						</button>
 					</form>
 					<p ng-repeat="bet in match.bets">
-						{{bet.userName}} {{bet.betAmount}}
+						{{bet.username}} {{bet.amount}}
 					</p>
 				</div>
 			</section>
