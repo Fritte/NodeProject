@@ -52,8 +52,15 @@ var betTable = new mongoose.Schema({
 	},
 });
 
+var userTable = new mongoose.Schema({
+	username : String,
+	userId : Number,
+});
+
 // Get betTable to call save or find function
 var BetDB = mongoose.model('BetDB', betTable);
+
+var UserDB = mongoose.model('UserDB', userTable);
 
 // Universal callback function to debug everything on console
 var callback = function(err, data) {
@@ -88,7 +95,6 @@ io.on('connection', function(socket) {
 			if (!_.isEqual(listOfAllMatches, lastRequestJSON)) {
 				// Calculate the order of bets for every match
 				lastRequestJSON = _.map(listOfAllMatches, _.clone);
-
 				listOfAllMatches.forEach(function(match) {
 					// get only the names, and the amount of money, they have won
 					var namesInOrder = _.map(calculateOrderOfBets(match), function(bet) {
@@ -108,16 +114,38 @@ io.on('connection', function(socket) {
 					console.log("Current result: " + match.MatchResults[0].PointsTeam1 + " : " + match.MatchResults[0].PointsTeam2);
 					console.log(namesInOrder);
 				});
+				//console.log(lastRequestJSON);
 				sendAllMatches(lastRequestJSON);
 				//TODO: send Data
 			}
 		});
 	}, constants.REFRESH_RATE_IN_SECONDS * 1000);
 
+	socket.on('login', function(user){	
+		UserDB.find({
+			username : user.username
+		}, function(err, data) {
+			if (data.length == 1) {
+				io.emit('loggedIn', data[0]);
+			} else {
+				newUser = {username: user.username,
+					userId : Math.floor((Math.random() * 100000) + 1)}
+				var newAccount = new UserDB(newUser);
+				newAccount.save(function(err) {
+					if (err)
+						console.log(err);
+					else {
+						io.emit('loggedIn', newUser);
+					}
+				});
+			}
+		});
+	});
+
 	socket.on('place bet', function(betDetails) {
 		if (validateBet(betDetails)) {
 			BetDB.find({
-				username : betDetails.username,
+				userId : betDetails.userId,
 				matchId : betDetails.matchId
 			}, function(err, data) {
 				if (data.length >= 1) {

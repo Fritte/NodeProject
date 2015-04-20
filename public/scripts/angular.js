@@ -1,11 +1,23 @@
 (function() {
+	
 	var BetYourFriends = angular.module('BetYourFriends', []);
-	BetYourFriends.controller('matchController', function($scope) {
+	BetYourFriends.controller('matchController', function($scope, $rootScope) {
+		$rootScope.loggedIn = false;
 		var socket = io();
+		$scope.user = {username: ""};
+		this.login = function(){
+			socket.emit('login', $scope.user);
+		};
+		socket.on('loggedIn', function(user){
+			$rootScope.username = $scope.user.username;
+			$rootScope.userId = user.userId;
+			$rootScope.loggedIn = true;	
+			$scope.$apply();
+		});
 		this.placeBet = function(matchId, index) {
 			var betDetails = {
-					username: 'pro1',//document.getElementById('userName').value,
-					userId: 1,
+					username: $rootScope.username,//document.getElementById('userName').value,
+					userId: $rootScope.userId,
 					matchId: matchId,
 					amount: document.getElementById('betAmount'+index).value,
 					index: index,
@@ -27,7 +39,9 @@
 		socket.on('show bet', function(betDetails){
 			var bet = {
 					username: betDetails.username,
-					amount: betDetails.amount
+					amount: betDetails.amount,
+					team1Goals: betDetails.team1Goals,
+					team2Goals: betDetails.team2Goals
 			};
 	        $scope.matches[betDetails.index].bets= ($scope.matches[betDetails.index].bets).concat(bet);//Update bet details in the table
 	        $scope.$apply();

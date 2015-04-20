@@ -1,19 +1,3 @@
-<!-- Working with socket.io
-
-<!DOCTYPE html>
-<html>
-<head lang="en">
-<meta charset="UTF-8">
-<title>Bet against your friend</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
-</head>
-<body>
-<script src="scripts/communication.js"></script>
-<h2>Bet against your friends</h2>
-</body>
-</html> !-->
-
 <!DOCTYPE html>
 <html ng-app="BetYourFriends">
 	<head lang="en">
@@ -28,38 +12,81 @@
 			<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 			<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 		</head>
-		<body>
+		<body style="padding: 20px;">
 			<script src="scripts/angular.js"></script>
 			<script src="scripts/client-side-io.js"></script>
-
 			<section ng-controller="matchController as matchCtrl">
-				<div ng-repeat="match in matches">
-					<form name="betForm" class="form-inline" role="form" ng-submit="betForm.$valid && matchCtrl.placeBet(match.matchId, $index)">
+				<div ng-hide=loggedIn style="width:20%">
+					<h3>Please Login in your account</h3>
+					<form name="userForm" role="form" ng-submit="matchCtrl.login()">
 						<div class="form-group">
-							<label for="betAmount">Your Amount*</label>
-							<select class="form-control" name="betAmount" id="betAmount{{$index}}" required>
-								<option value="10" selected>10</option>
-								<option value="20">20</option>
-								<option value="50">50</option>
-								<option value="100">100</option>
-								<option value="500">500</option>
-							</select>
+				    		<label>Username</label>
+							<input type="text" class="form-control" ng-model="user.username" required /><br>
+							<button type="submit" class="btn btn-primary">
+								Login
+							</button>
 						</div>
-						<div class="form-group">
-    						<label>{{match.Team1.TeamName}} Goals</label>
-    						<input type="number" class="form-control" id="t1Goals{{$index}}" required />
-  					    </div>
-						<div class="form-group">
-    						<label>{{match.Team2.TeamName}} Goals</label>
-    						<input type="number" class="form-control" id="t2Goals{{$index}}" required />
-  					    </div>
-						<button type="submit" class="btn btn-default">
-							Place Bet
-						</button>
 					</form>
-					<p ng-repeat="bet in match.bets">
-						{{bet.username}} {{bet.amount}}
-					</p>
+				</div>
+				<div ng-repeat="match in matches" ng-show=loggedIn>
+					<div>
+						<h2><img src="{{match.Team1.TeamIconUrl}}"> {{match.Team1.TeamName}} VS <img src="{{match.Team2.TeamIconUrl}}"> {{match.Team2.TeamName}}</h2>
+						<b>Current Score: </b>{{match.MatchResults[0].PointsTeam1}}/{{match.MatchResults[0].PointsTeam2}}
+					</div>
+					<div style="width: 50%;">
+						<table class="table table-striped">
+						    <thead>
+						      <tr>
+						        <th>Username</th>
+						        <th>Bet</th>
+						        <th>Amount</th>
+						        <th>Reward</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						      <tr ng-repeat="bet in match.bets">
+						        <td>{{bet.username}}</td>
+						        <td>{{bet.team1Goals}}/{{bet.team2Goals}}</td>
+						        <td>{{bet.amount}}</td>
+						        <td>Reward</td>
+						      </tr>
+						  </table>
+					</div>
+					<h3>Place your Bet here</h3>
+					<form style="margin-left: 20px;" name="betForm" role="form" ng-submit="betForm.$valid && matchCtrl.placeBet(match.matchId, $index)">
+						<div class="row">
+    						<fieldset class="form-inline">
+								<div class="form-group">
+		    						<label>{{match.Team1.TeamName}} Goals</label>
+		    						<input type="number" class="form-control" id="t1Goals{{$index}}" style="width: 80px;" required />
+		  					    </div>
+								<div class="form-group">
+		    						<label>{{match.Team2.TeamName}} Goals</label>
+		    						<input type="number" class="form-control" id="t2Goals{{$index}}" style="width: 80px;" required />
+		  					    </div>
+		  					</fieldset>
+						</div>
+						<br>
+						<div class="row">
+    						<fieldset class="form-inline">
+		  					    <div class="form-group">
+									<label for="betAmount">Your Amount*</label>
+									<select class="form-control" name="betAmount" id="betAmount{{$index}}" required>
+										<option value="10" selected>10 EUR</option>
+										<option value="20">20 EUR</option>
+										<option value="50">50 EUR</option>
+										<option value="100">100 EUR</option>
+										<option value="500">500 EUR</option>
+									</select>
+								</div>
+								<button type="submit" class="btn btn-primary" >
+									<!-- ng-disabled="match.MatchIsRunning || match.MatchIsFinished" -->
+									Place Bet
+								</button>
+							</fieldset>
+						</div>
+					</form>
+					<hr style="width: 50%; border-width: 3px;" align="left">
 				</div>
 			</section>
 		</body>
