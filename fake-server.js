@@ -58,48 +58,24 @@ app.get('/api/getmatchdata/bl1/2014/0', function (req, res) {
  * beginDate: Start time of the match, if not specified the match starts now
  * The date has to be specified in UTC format YYYY-MM-DDTHH:MM:SSZ
  */
-app.get('/api/startMatch', function (req, res) {
-    console.log(req.query);
-    if (typeof req.query.lengthMatch == 'undefined') {
-        res.status(400).send('Missing Parameter lengthMatch (in seconds)!');
-        return;
-    }
-
-    // Reset goals
-    awayTeamGoals = 0;
-    homeTeamGoals = 0;
-
-    var now = moment();
-    var startDate;
-    if (typeof req.query.beginDate == 'undefined') {
-        startDate = moment();
-    } else {
-        startDate = moment(req.query.beginDate);
-    }
-
-    if (now.isAfter(startDate)) {
-        res.status(400).send('The start Date has to be in the future!');
-    }
-
-    var endDate = startDate.add(moment.duration(req.query.lengthMatch, 'seconds'));
-    var match = addMatch(startDate, endDate);
-
+function startMatch(req, res, match, startDate, endDate) {
     // start match
+    var now = moment();
     setTimeout(function () {
         console.log('Match has started');
         match['MatchIsFinished'] = false;
         match['MatchIsRunning'] = true;
 
-        var refreshIntervalId = setInterval(function(){
+        var refreshIntervalId = setInterval(function () {
             // Goal
-            if(Math.random() < 0.5){
+            if (Math.random() < 0.5) {
                 // Goal for away team
-                var endResult = find(match.MatchResults, function(element, index, arr){
-                   return element.ResultOrderID == 1;
+                var endResult = find(match.MatchResults, function (element, index, arr) {
+                    return element.ResultOrderID == 1;
                 });
-                if(Math.random() < 0.5){
+                if (Math.random() < 0.5) {
                     endResult.PointsTeam1 += 1;
-                } else{
+                } else {
                     endResult.PointsTeam2 += 1;
                 }
             }
@@ -114,9 +90,45 @@ app.get('/api/startMatch', function (req, res) {
             console.log("Match has finished");
         }, req.query.lengthMatch * 1000);
     }, moment.duration(now.diff(startDate)).asMilliseconds());
+}
 
-    res.sendStatus(200);
-});
+function startMatchInXSeconds(x) {
+    return function (req, res) {
+        console.log(req.query);
+        if (typeof req.query.lengthMatch == 'undefined') {
+            res.status(400).send('Missing Parameter lengthMatch (in seconds)!');
+            return;
+        }
+        awayTeamGoals = 0;
+        homeTeamGoals = 0;
+
+        var now = moment();
+        var startDate;
+        if (typeof req.query.beginDate == 'undefined') {
+            startDate = moment();
+        } else {
+            startDate = moment(req.query.beginDate);
+        }
+
+        if (now.isAfter(startDate)) {
+            res.status(400).send('The start Date has to be in the future!');
+        }
+
+        var endDate = startDate.add(moment.duration(req.query.lengthMatch, 'seconds'));
+        var match = addMatch(startDate, endDate);
+        setTimeout(function () {
+            startMatch(req, res, match, startDate, endDate);
+        }, x * 1000)
+        res.sendStatus(200);
+    };
+}
+
+app.get('/api/startMatch', startMatchInXSeconds(0));
+app.get('/api/startMatchInThirtySeconds', startMatchInXSeconds(30));
+app.get('/api/startMatchInOneMinute', startMatchInXSeconds(60));
+app.get('/api/startMatchInTwoMinutes', startMatchInXSeconds(120));
+app.get('/api/startMatchInFiveMinutes', startMatchInXSeconds(300));
+
 
 function clone(a) {
     return JSON.parse(JSON.stringify(a));
@@ -132,11 +144,11 @@ function clone(a) {
 function addMatch(startDate, endDate) {
     var match = clone(matchTemplate);
     // get random teams
-    var firstTeam = random.integer(0, teams.bundesligaTeams.length-1);
+    var firstTeam = random.integer(0, teams.bundesligaTeams.length - 1);
     var secondTeam;
-    do{
-        secondTeam = random.integer(0, teams.bundesligaTeams.length-1);
-    }while (secondTeam === firstTeam);
+    do {
+        secondTeam = random.integer(0, teams.bundesligaTeams.length - 1);
+    } while (secondTeam === firstTeam);
     match['Team1'] = teams.bundesligaTeams[firstTeam];
     match['Team2'] = teams.bundesligaTeams[secondTeam];
 

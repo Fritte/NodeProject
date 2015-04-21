@@ -49,12 +49,12 @@ var betTable = new mongoose.Schema({
 	time : {
 		type : Date,
 		default : Date.now
-	},
+	}
 });
 
 var userTable = new mongoose.Schema({
 	username : String,
-	userId : Number,
+	userId : Number
 });
 
 // Get betTable to call save or find function
