@@ -17,9 +17,9 @@
 <script src="scripts/angular.js"></script>
 <script src="scripts/client-side-io.js"></script>
 <section ng-controller="matchController as matchCtrl" align="center">
-    <div class="wrapper col-xs-6 col-xs-offset-3" align="center">
+    <div class="wrapper col-xs-6 col-xs-offset-3 col-md-5 col-md-offset-3" align="center" ng-hide=loggedIn>
         <form name="userForm" role="form" ng-submit="matchCtrl.login()">
-            <div ng-hide=loggedIn>
+            <div>
                 <div class="row">
                     <h2 class="form-signin-heading">Please Enter your Username</h2>
                 </div>
