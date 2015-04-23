@@ -118,7 +118,7 @@ function startMatchInXSeconds(x) {
         var match = addMatch(startDate, endDate);
         setTimeout(function () {
             startMatch(req, res, match, startDate, endDate);
-        }, x * 1000)
+        }, x * 1000);
         res.sendStatus(200);
     };
 }

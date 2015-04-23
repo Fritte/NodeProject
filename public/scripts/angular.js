@@ -1,8 +1,27 @@
 (function() {
 	
 	var BetYourFriends = angular.module('BetYourFriends', []);
+    BetYourFriends.controller('betController', function($scope, $rootScope){
+        var socket = io();
+        this.placeBet = function(matchId, index) {
+            var betDetails = {
+                username: $rootScope.username,//document.getElementById('userName').value,
+                userId: $rootScope.userId,
+                matchId: matchId,
+                amount: document.getElementById('betAmount'+index).value,
+                index: index,
+                team1Goals: parseInt(document.getElementById('t1Goals'+index).value),
+                team2Goals: parseInt(document.getElementById('t2Goals'+index).value)
+            };
+            socket.emit('place bet', betDetails);
+            //return false;
+        };
+    });
+
 	BetYourFriends.controller('matchController', function($scope, $rootScope) {
 		$rootScope.loggedIn = false;
+        var _username;
+        var _userId;
 		var socket = io();
 		$scope.user = {username: ""};
 		this.login = function(){
@@ -13,29 +32,47 @@
 			$rootScope.userId = user.userId;
 			$rootScope.loggedIn = true;	
 			$scope.$apply();
+            _username = $scope.user.username;
+            _userId = user.userId;
 		});
-		this.placeBet = function(matchId, index) {
-			var betDetails = {
-					username: $rootScope.username,//document.getElementById('userName').value,
-					userId: $rootScope.userId,
-					matchId: matchId,
-					amount: document.getElementById('betAmount'+index).value,
-					index: index,
-					team1Goals: parseInt(document.getElementById('t1Goals'+index).value),
-					team2Goals: parseInt(document.getElementById('t2Goals'+index).value)
-			};
-		    socket.emit('place bet', betDetails);
-		    //return false;
-		};
+
+        this.isBetAllowed = function(match){
+            var now = moment();
+            var matchBegin = moment(match.MatchDateTime);
+            return matchBegin.isAfter(now);
+        };
+
 		socket.on('send all matches', function(matches){
+            console.log("send all matches called");
+            console.log(matches);
 	        $scope.matches = matches;
-	        for(i=0;i<matches.length;i++){
+	        /* for(i=0;i<matches.length;i++){
 	        	//socket.emit('get bets', matches[i].matchId);
 	        	//socket
 	        	$scope.matches[i].bets = [];
-	        }
-	        $scope.$apply();
+	        } */
 	    });
+        socket.on('matchInfoChanged', function(match){
+            var x = true;
+            console.log($scope.matches);
+            for(var i=0; i<$scope.matches.length; i++){
+                // update match, if already existing
+                if($scope.matches[i].matchId === match.matchId){
+                    console.log("updated!");
+                    $scope.matches[i].MatchResults[0].PointsTeam1 = match.MatchResults[0].PointsTeam1;
+                    $scope.matches[i].MatchResults[0].PointsTeam2 = match.MatchResults[0].PointsTeam2;
+                    $scope.matches[i].bets = match.bets;
+                    x = false;
+                    break;
+                }
+            }
+            // if match does not already exit add it to the List
+            if(x) {
+                $scope.matches.push(match);
+            }
+            $scope.$apply();
+        });
+
 		socket.on('show bet', function(betDetails){
 			var bet = {
 					username: betDetails.username,
@@ -44,7 +81,7 @@
 					team2Goals: betDetails.team2Goals
 			};
 	        $scope.matches[betDetails.index].bets= ($scope.matches[betDetails.index].bets).concat(bet);//Update bet details in the table
-	        $scope.$apply();
+            $scope.$apply();
 	    });
 	});
 })();

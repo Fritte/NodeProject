@@ -89,17 +89,19 @@ app.get('/', function (req, res) {
 
 
 io.on('connection', function (socket) {
-
     sendAllMatches(lastRequestJSON);
     var resultsInterval = setInterval(function () {
-
         request(fakeServerAddress + apiAdresses.MATCH_DATA_OF_DAY + currentMatchDay, function (error, response, body) {
+            // check if connected
+            if(typeof response === 'undefined'){
+                return
+            }
             var listOfAllMatches = JSON.parse(response.body);
 
             if (!_.isEqual(listOfAllMatches, lastRequestJSON)) {
                 // Calculate the order of bets for every match
                 var listOfAllBets = [];
-                lastRequestJSON = _.map(listOfAllMatches, _.clone);
+                lastRequestJSON = _.clone(listOfAllMatches);
                 listOfAllMatches.forEach(function (match) {
                     // get only the names, and the amount of money, they have won
                     var namesInOrder = _.map(calculateOrderOfBets(match), function (bet) {
@@ -122,14 +124,12 @@ io.on('connection', function (socket) {
 
                     betsMatchMap[String(match.matchId)] = namesInOrder;
                     listOfAllBets.push(namesInOrder);
-                    console.log(listOfAllBets);
+                    // console.log(listOfAllBets);
 
                     // TODO: Send listOfAllBets
-                    match.namesInOrder = namesInOrder;
-                    console.log("Current result: " + match.MatchResults[0].PointsTeam1 + " : " + match.MatchResults[0].PointsTeam2);
-                    console.log(match);
-                    sendAllMatches(match);
-
+                    match.bets = namesInOrder;
+                    console.log("match Info Changed!");
+                    io.emit("matchInfoChanged", match);
                 });
                 //console.log(lastRequestJSON);
 
@@ -148,7 +148,7 @@ io.on('connection', function (socket) {
                 newUser = {
                     username: user.username,
                     userId: Math.floor((Math.random() * 100000) + 1)
-                }
+                };
                 var newAccount = new UserDB(newUser);
                 newAccount.save(function (err) {
                     if (err)
@@ -160,15 +160,15 @@ io.on('connection', function (socket) {
             }
         });
     });
-
+    /**
     socket.on('getAllData', function(socket){
-        var allData = _.clone(lastRequestJSON);
+        var allData = _.map(lastRequestJSON, _.clone);;
         for(var i = 0; i < lastRequestJSON.length; i++){
             allData[i].bets = betsMatchMap[String(allData[i].matchId)];
         }
         io.emit("send all matches", allData);
     });
-
+    **/
     socket.on('place bet', function (betDetails) {
         if (validateBet(betDetails)) {
             BetDB.find({
@@ -223,16 +223,13 @@ function validateBet(betDetails) {
 
 // Sends the list of matches and bets to client side
 function sendAllMatches(lastRequestJSON) {
-    io.emit('send all matches', lastRequestJSON);
-    for (var i = 0; i < lastRequestJSON.length; i++) {
-        BetDB.find({
-            matchId: lastRequestJSON[i].matchId
-        }, function (err, data) {
-            for (var j = 0; j < data.length; j++) {
-                io.emit('show bet', data[j]);
-            }
-        });
+    console.log("lastRequest"+JSON.stringify(lastRequestJSON));
+    var allData = _.clone(lastRequestJSON);
+    for(var i = 0; i < lastRequestJSON.length; i++){
+        allData[i].bets = betsMatchMap[String(allData[i].matchId)];
     }
+    console.log(JSON.stringify(allData));
+    io.emit("send all matches", allData);
 }
 
 /**
