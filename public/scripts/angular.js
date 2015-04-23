@@ -62,6 +62,8 @@
                     $scope.matches[i].MatchResults[0].PointsTeam1 = match.MatchResults[0].PointsTeam1;
                     $scope.matches[i].MatchResults[0].PointsTeam2 = match.MatchResults[0].PointsTeam2;
                     $scope.matches[i].bets = match.bets;
+                    $scope.matches[i].MatchIsFinished = match.MatchIsFinished;
+                    $scope.matches[i].MatchIsRunning = match.MatchIsRunning;
                     x = false;
                     break;
                 }

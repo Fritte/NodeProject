@@ -160,7 +160,7 @@ io.on('connection', function (socket) {
             }
         });
     });
-    /**
+    /*
     socket.on('getAllData', function(socket){
         var allData = _.map(lastRequestJSON, _.clone);;
         for(var i = 0; i < lastRequestJSON.length; i++){
@@ -168,7 +168,7 @@ io.on('connection', function (socket) {
         }
         io.emit("send all matches", allData);
     });
-    **/
+    */
     socket.on('place bet', function (betDetails) {
         if (validateBet(betDetails)) {
             BetDB.find({
@@ -194,6 +194,7 @@ io.on('connection', function (socket) {
             console.log('Invalidate');
             // Send error to client
         }
+       //addBet(betDetails);
     });
 
     socket.on('disconnect', function () {
