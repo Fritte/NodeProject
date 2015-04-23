@@ -86,7 +86,10 @@ app.get('/', function (req, res) {
     res.sendfile('index.html');
 });
 
+
+
 io.on('connection', function (socket) {
+
     sendAllMatches(lastRequestJSON);
     var resultsInterval = setInterval(function () {
 
@@ -116,6 +119,8 @@ io.on('connection', function (socket) {
                             namesInOrder[i].reward = 0;
                         }
                     }
+
+                    betsMatchMap[String(match.matchId)] = namesInOrder;
                     listOfAllBets.push(namesInOrder);
                     console.log(listOfAllBets);
 
@@ -154,6 +159,14 @@ io.on('connection', function (socket) {
                 });
             }
         });
+    });
+
+    socket.on('getAllData', function(socket){
+        var allData = _.clone(lastRequestJSON);
+        for(var i = 0; i < lastRequestJSON.length; i++){
+            allData[i].bets = betsMatchMap[String(allData[i].matchId)];
+        }
+        io.emit("send all matches", allData);
     });
 
     socket.on('place bet', function (betDetails) {
