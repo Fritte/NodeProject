@@ -3,6 +3,15 @@
 	var BetYourFriends = angular.module('BetYourFriends', []);
     BetYourFriends.controller('betController', function($scope, $rootScope){
         var socket = io();
+        
+        var divCurrentTime = $('.currentTime');
+            	var currentTime;
+            	setInterval(function(){
+            		currentTime = moment.utc();
+            		currentTime = moment(currentTime).toDate();
+    				divCurrentTime.html("<b>Current Time: </b>"+moment(currentTime).format('YYYY-MM-DD HH:mm:ss'));
+            	},1000);
+        
         this.placeBet = function(matchId, index) {
             var betDetails = {
                 username: $rootScope.username,//document.getElementById('userName').value,
@@ -20,6 +29,7 @@
 
 	BetYourFriends.controller('matchController', function($scope, $rootScope) {
 		$rootScope.loggedIn = false;
+		var matchStartTime;
         var _username;
         var _userId;
 		var socket = io();
@@ -45,20 +55,21 @@
 		socket.on('send all matches', function(matches){
             console.log("send all matches called");
             console.log(matches);
+	        for(i=0;i<matches.length;i++){
+	        	matchStartTime = moment.utc(matches[i].MatchDateTime).toDate();
+            	matches[i].MatchDateTime = moment(matchStartTime).format('YYYY-MM-DD HH:mm:ss');
+	        	//$scope.matches[i].bets = [];
+	        }
 	        $scope.matches = matches;
-	        /* for(i=0;i<matches.length;i++){
-	        	//socket.emit('get bets', matches[i].matchId);
-	        	//socket
-	        	$scope.matches[i].bets = [];
-	        } */
 	    });
         socket.on('matchInfoChanged', function(match){
             var x = true;
             console.log($scope.matches);
+            
             for(var i=0; i<$scope.matches.length; i++){
                 // update match, if already existing
                 if($scope.matches[i].matchId === match.matchId){
-                    console.log("updated!");
+                    console.log("updated!");   
                     $scope.matches[i].MatchResults[0].PointsTeam1 = match.MatchResults[0].PointsTeam1;
                     $scope.matches[i].MatchResults[0].PointsTeam2 = match.MatchResults[0].PointsTeam2;
                     $scope.matches[i].bets = match.bets;
@@ -70,6 +81,8 @@
             }
             // if match does not already exit add it to the List
             if(x) {
+            	matchStartTime = moment.utc(match.MatchDateTime).toDate();
+            	match.MatchDateTime = moment(matchStartTime).format('YYYY-MM-DD HH:mm:ss');
                 $scope.matches.push(match);
             }
             $scope.$apply();

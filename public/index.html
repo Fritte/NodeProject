@@ -16,9 +16,7 @@
 </head>
 <body>
 <script src="scripts/angular.js"></script>
-<script src="scripts/client-side-io.js"></script>
 <section ng-controller="matchController as matchCtrl" align="center">
-	{{match}}
     <div class="wrapper col-xs-6 col-xs-offset-3 col-md-5 col-md-offset-3" align="center" ng-hide=loggedIn>
         <form name="userForm" role="form" ng-submit="matchCtrl.login()">
             <div>
@@ -41,20 +39,17 @@
     <div class="col-xs-6 col-xs-offset-3" ng-show=loggedIn>
         <h2>Bet Against Your Friends!</h2>
     </div>
-
     <div class="col-xs-6 col-xs-offset-3" ng-if= "matches.length == 0" ng-show=loggedIn>
         <h3> Matches are coming soon! </h3>
     </div>
-
     <div ng-repeat="match in matches" ng-show=loggedIn>
         <div class="col-xs-6 col-xs-offset-3">
             <h1><img src="{{match.Team1.TeamIconUrl}}"> {{match.Team1.TeamName}} <br/> VS. <br/> <img
                     src="{{match.Team2.TeamIconUrl}}"> {{match.Team2.TeamName}}</h1>
-            <b>Current Score: </b>{{match.MatchResults[0].PointsTeam1}}/{{match.MatchResults[0].PointsTeam2}} <br>
-            <b>Start Time</b> {{match.MatchDateTime}}
+            <b ng-hide=match.MatchIsFinished>Current Score: </b><b ng-show=match.MatchIsFinished>Final Score: </b>
+            	{{match.MatchResults[0].PointsTeam1}}/{{match.MatchResults[0].PointsTeam2}} <br>
+            <b>Start Time: </b>{{match.MatchDateTime}}<div class="currentTime"></div>
         </div>
-
-
         <div class="col-xs-6 col-xs-offset-3 row margin-top-30">
             <div class="table-responsive">
                 <table data-toggle="table" class="table table-striped table-bordered">
@@ -119,7 +114,6 @@
 
 
                         <button type="submit" class="btn btn-primary" ng-disabled="match.MatchIsRunning || match.MatchIsFinished">
-                            <!-- ng-disabled="match.MatchIsRunning || match.MatchIsFinished" -->
                             Place Bet
                         </button>
                     </fieldset>
