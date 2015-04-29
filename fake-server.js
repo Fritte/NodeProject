@@ -119,7 +119,7 @@ function startMatchInXSeconds(x) {
         }
          **/
 
-        var endDate = moment(startDate).add(10, 's');
+        var endDate = moment(startDate).add(req.query.lengthMatch, 's');
         var match = addMatch(startDate, endDate);
         setTimeout(function () {
             startMatch(req, res, match, startDate, endDate);
