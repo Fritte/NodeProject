@@ -8,6 +8,7 @@ var app = express();
 var moment = require('moment');
 var find = require('array-find');
 var random = require("random-js")();
+var moment = require('moment');
 
 var teams = require('./lib/fakeServer/teams');
 var constants = require('./lib/constants');
@@ -68,12 +69,14 @@ function startMatch(req, res, match, startDate, endDate) {
 
         var refreshIntervalId = setInterval(function () {
             // Goal
-            if (Math.random() < 0.5) {
+            var r = Math.random();
+            if (r < 0.5) {
                 // Goal for away team
                 var endResult = find(match.MatchResults, function (element, index, arr) {
                     return element.ResultOrderID == 1;
                 });
-                if (Math.random() < 0.5) {
+                // assign a goal randomly
+                if (r < 0.25) {
                     endResult.PointsTeam1 += 1;
                 } else {
                     endResult.PointsTeam2 += 1;
@@ -94,8 +97,8 @@ function startMatch(req, res, match, startDate, endDate) {
 
 function startMatchInXSeconds(x) {
     return function (req, res) {
-        console.log(req.query);
-        if (typeof req.query.lengthMatch == 'undefined') {
+        console.log(req.query.lengthMatch);
+        if (typeof req.query.lengthMatch === 'undefined') {
             res.status(400).send('Missing Parameter lengthMatch (in seconds)!');
             return;
         }
@@ -116,7 +119,7 @@ function startMatchInXSeconds(x) {
         }
          **/
 
-        var endDate = startDate.add(moment.duration(req.query.lengthMatch, 'seconds'));
+        var endDate = moment(startDate).add(10, 's');
         var match = addMatch(startDate, endDate);
         setTimeout(function () {
             startMatch(req, res, match, startDate, endDate);
@@ -155,9 +158,10 @@ function addMatch(startDate, endDate) {
     match['Team2'] = teams.bundesligaTeams[secondTeam];
 
     match['MatchDateTimeUTC'] = startDate.utc();
-    match['MatchDateTime'] = startDate;
+    match['MatchDateTime'] = moment(moment.utc(startDate).toDate()).format('YYYY-MM-DD HH:mm:ss')
     match['MatchDateEndTimeUTC'] = endDate.utc();
-    match['MatchDateEndTime'] = endDate;
+
+    match['MatchDateEndTime'] = moment(moment.utc(endDate).toDate()).format('YYYY-MM-DD HH:mm:ss');
     match['matchId'] = nextMatchId;
     match['MatchIsFinished'] = false;
     match['MatchIsRunning'] = false;

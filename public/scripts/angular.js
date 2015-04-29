@@ -1,14 +1,14 @@
 (function() {
-	
+
 	var BetYourFriends = angular.module('BetYourFriends', []);
     BetYourFriends.controller('betController', function($scope, $rootScope){
         var socket = io();
-        
+
         socket.on('failureBet', function(error){
         	var errorDiv = document.getElementById('error'+error.index);
         	errorDiv.innerHTML = "<b>Error: </b>"+error.errorMessage;
         });
-        
+
         var divCurrentTime = $('.currentTime');
             	var currentTime;
             	setInterval(function(){
@@ -16,7 +16,7 @@
             		currentTime = moment(currentTime).toDate();
     				divCurrentTime.html("<b>Current Time: </b>"+moment(currentTime).format('YYYY-MM-DD HH:mm:ss'));
             	},1000);
-        
+
         this.placeBet = function(matchId, index) {
             var betDetails = {
                 username: $rootScope.username,//document.getElementById('userName').value,
@@ -45,7 +45,7 @@
 		socket.on('loggedIn', function(user){
 			$rootScope.username = $scope.user.username;
 			$rootScope.userId = user.userId;
-			$rootScope.loggedIn = true;	
+			$rootScope.loggedIn = true;
 			$scope.$apply();
             _username = $scope.user.username;
             _userId = user.userId;
@@ -60,21 +60,16 @@
 		socket.on('send all matches', function(matches){
             console.log("send all matches called");
             console.log(matches);
-	        for(i=0;i<matches.length;i++){
-	        	matchStartTime = moment.utc(matches[i].MatchDateTime).toDate();
-            	matches[i].MatchDateTime = moment(matchStartTime).format('YYYY-MM-DD HH:mm:ss');
-	        	//$scope.matches[i].bets = [];
-	        }
 	        $scope.matches = matches;
 	    });
         socket.on('matchInfoChanged', function(match){
             var x = true;
             console.log($scope.matches);
-            
+
             for(var i=0; i<$scope.matches.length; i++){
                 // update match, if already existing
                 if($scope.matches[i].matchId === match.matchId){
-                    console.log("updated!");   
+                    console.log("updated!");
                     $scope.matches[i].MatchResults[0].PointsTeam1 = match.MatchResults[0].PointsTeam1;
                     $scope.matches[i].MatchResults[0].PointsTeam2 = match.MatchResults[0].PointsTeam2;
                     $scope.matches[i].bets = match.bets;
