@@ -102,17 +102,19 @@ function startMatchInXSeconds(x) {
         awayTeamGoals = 0;
         homeTeamGoals = 0;
 
-        var now = moment();
-        var startDate;
+        var startDate = moment().add(x, 's');
+        /**
         if (typeof req.query.beginDate == 'undefined') {
             startDate = moment();
         } else {
             startDate = moment(req.query.beginDate);
         }
 
+
         if (now.isAfter(startDate)) {
             res.status(400).send('The start Date has to be in the future!');
         }
+         **/
 
         var endDate = startDate.add(moment.duration(req.query.lengthMatch, 'seconds'));
         var match = addMatch(startDate, endDate);

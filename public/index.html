@@ -13,6 +13,12 @@
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="scripts/angular-timer.min.js"></script>
+    <script src="scripts/locales.min.js"></script>
+    <script src="scripts/humanize-duration.js"></script>
+    <script src="scripts/moment.min.js"></script>
+    <!-- <script src="scripts/angular-timer.min.js"></script>
+    <script src="scripts/angular-timer-bower.js"></script> !-->
 </head>
 <body>
 <script src="scripts/angular.js"></script>
@@ -41,6 +47,7 @@
     </div>
     <div class="col-xs-6 col-xs-offset-3" ng-if= "matches.length == 0" ng-show=loggedIn>
         <h3> Matches are coming soon! </h3>
+        <timer interval="1000" countdown="100">{{countdown}}</timer>
     </div>
     <div ng-repeat="match in matches" ng-show=loggedIn>
         <div class="col-xs-6 col-xs-offset-3">

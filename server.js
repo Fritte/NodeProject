@@ -132,7 +132,6 @@ io.on('connection', function (socket) {
                     io.emit("matchInfoChanged", match);
                 });
                 //console.log(lastRequestJSON);
-
                 //TODO: send Data
             }
         });
@@ -143,7 +142,7 @@ io.on('connection', function (socket) {
             username: user.username
         }, function (err, data) {
             if (data.length == 1) {
-                io.emit('loggedIn', data[0]);
+                socket.emit('loggedIn', data[0]);
             } else {
                 newUser = {
                     username: user.username,
@@ -154,7 +153,7 @@ io.on('connection', function (socket) {
                     if (err)
                         console.log(err);
                     else {
-                        io.emit('loggedIn', newUser);
+                        socket.emit('loggedIn', newUser);
                     }
                 });
             }
@@ -178,6 +177,7 @@ io.on('connection', function (socket) {
                 if (data.length >= 1) {
                     //Send error to client
                     console.log('you already bet');
+                    socket.emit('failureBet', {errorMessage : "You have already bet on this event!"});
                 } else {
                     var newBet = new BetDB(betDetails);
                     newBet.save(function (err) {
