@@ -177,7 +177,7 @@ io.on('connection', function (socket) {
                 if (data.length >= 1) {
                     //Send error to client
                     console.log('you already bet');
-                    socket.emit('failureBet', {errorMessage : "You have already bet on this event!"});
+                    socket.emit('failureBet', {errorMessage : "You have already bet on this event!", index: betDetails.index});
                 } else {
                     var newBet = new BetDB(betDetails);
                     newBet.save(function (err) {

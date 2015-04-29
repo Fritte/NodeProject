@@ -4,6 +4,11 @@
     BetYourFriends.controller('betController', function($scope, $rootScope){
         var socket = io();
         
+        socket.on('failureBet', function(error){
+        	var errorDiv = document.getElementById('error'+error.index);
+        	errorDiv.innerHTML = "<b>Error: </b>"+error.errorMessage;
+        });
+        
         var divCurrentTime = $('.currentTime');
             	var currentTime;
             	setInterval(function(){
