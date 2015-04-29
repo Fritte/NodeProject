@@ -23,7 +23,7 @@
 <body>
 <script src="scripts/angular.js"></script>
 <section ng-controller="matchController as matchCtrl" align="center">
-    <div class="wrapper col-xs-6 col-xs-offset-3 col-md-5 col-md-offset-3" align="center" ng-hide=loggedIn>
+    <div class="wrapper col-xs-6 col-xs-offset-3 col-md-offset-3" align="center" ng-hide=loggedIn>
         <form name="userForm" role="form" ng-submit="matchCtrl.login()">
             <div>
                 <div class="row">
@@ -45,7 +45,7 @@
     <div class="col-xs-6 col-xs-offset-3" ng-show=loggedIn>
         <h2>Bet Against Your Friends!</h2>
     </div>
-    <div class="col-xs-6 col-xs-offset-3" ng-if= "matches.length == 0" ng-show=loggedIn>
+    <div class="col-xs-6 col-xs-offset-3" ng-if="matches.length == 0" ng-show=loggedIn>
         <h3> Matches are coming soon! </h3>
         <timer interval="1000" countdown="100">{{countdown}}</timer>
     </div>
@@ -54,8 +54,9 @@
             <h1><img src="{{match.Team1.TeamIconUrl}}"> {{match.Team1.TeamName}} <br/> VS. <br/> <img
                     src="{{match.Team2.TeamIconUrl}}"> {{match.Team2.TeamName}}</h1>
             <b ng-hide=match.MatchIsFinished>Current Score: </b><b ng-show=match.MatchIsFinished>Final Score: </b>
-            	{{match.MatchResults[0].PointsTeam1}}/{{match.MatchResults[0].PointsTeam2}} <br>
-            <b>Start Time: </b>{{match.MatchDateTime}}<div class="currentTime"></div>
+            {{match.MatchResults[0].PointsTeam1}}/{{match.MatchResults[0].PointsTeam2}} <br>
+            <b>Start Time: </b>{{match.MatchDateTime}}
+            <div class="currentTime"></div>
         </div>
         <div class="col-xs-6 col-xs-offset-3 row margin-top-30">
             <div class="table-responsive">
@@ -80,53 +81,64 @@
             </div>
         </div>
 
-        <div class="col-xs-6 col-xs-offset-3 row margin-top-20">
-            <h3>Place your Bet here {{user.username}}</h3>
+        <div ng-if="match.MatchIsFinished === false">
+            <div class="col-xs-6 col-xs-offset-3 row margin-top-20">
+                <h3>Place your Bet here {{user.username}}</h3>
 
-            <form name="betForm" role="form" ng-controller="betController as betCtrl"
-                  ng-submit="betForm.$valid && betCtrl.placeBet(match.matchId, $index)">
-                <div class="row">
-                    <fieldset class="form-inline">
-                        <div class="form-group col-xs-8 col-xs-offset-2 col-md-6 col-md-offset-0">
-                            <label>{{match.Team1.TeamName}} Goals: </label> <br>
-                            <div class="col-xs-12">
-                            <input type="number" class="form-control" id="t1Goals{{$index}}"
-                                   required/>
+                <form name="betForm" role="form" ng-controller="betController as betCtrl"
+                      ng-submit="betForm.$valid && betCtrl.placeBet(match.matchId, $index)">
+                    <div class="row">
+                        <fieldset class="form-inline">
+                            <div class="form-group col-xs-8 col-xs-offset-2 col-md-6 col-md-offset-0">
+                                <label>{{match.Team1.TeamName}} Goals: </label> <br>
+
+                                <div class="col-xs-12">
+                                    <input type="number" class="form-control" id="t1Goals{{$index}}"
+                                           required/>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group col-xs-8 col-xs-offset-2 col-md-6 col-md-offset-0">
-                            <label>{{match.Team2.TeamName}} Goals: </label> <br>
-                            <div class="col-xs-12">
-                            <input type="number" class="form-control" id="t2Goals{{$index}}"
-                                   required/>
+                            <div class="form-group col-xs-8 col-xs-offset-2 col-md-6 col-md-offset-0">
+                                <label>{{match.Team2.TeamName}} Goals: </label> <br>
+
+                                <div class="col-xs-12">
+                                    <input type="number" class="form-control" id="t2Goals{{$index}}"
+                                           required/>
+                                </div>
                             </div>
-                        </div>
-                    </fieldset>
-                    <div id="error{{$index}}"></div>
-                </div>
+                        </fieldset>
+                        <div id="error{{$index}}"></div>
+                    </div>
 
-                <br>
+                    <br>
 
-                <div class="row">
-                    <fieldset class="form-inline">
-                        <div class="form-group">
-                            <label for="betAmount">Your Amount*</label>
-                            <select class="form-control" name="betAmount" id="betAmount{{$index}}" required>
-                                <option value="10" selected>10 EUR</option>
-                                <option value="20">20 EUR</option>
-                                <option value="50">50 EUR</option>
-                                <option value="100">100 EUR</option>
-                                <option value="500">500 EUR</option>
-                            </select>
-                        </div>
+                    <div class="row">
+                        <fieldset class="form-inline">
+                            <div class="form-group">
+                                <label for="betAmount">Your Amount*</label>
+                                <select class="form-control" name="betAmount" id="betAmount{{$index}}" required>
+                                    <option value="10" selected>10 EUR</option>
+                                    <option value="20">20 EUR</option>
+                                    <option value="50">50 EUR</option>
+                                    <option value="100">100 EUR</option>
+                                    <option value="500">500 EUR</option>
+                                </select>
+                            </div>
 
+                            <button type="submit" class="btn btn-primary"
+                                    ng-disabled="match.MatchIsRunning || match.MatchIsFinished">
+                                Place Bet
+                            </button>
+                        </fieldset>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                        <button type="submit" class="btn btn-primary" ng-disabled="match.MatchIsRunning || match.MatchIsFinished">
-                            Place Bet
-                        </button>
-                    </fieldset>
-                </div>
-            </form>
+        <div ng-if="match.MatchIsFinished">
+            <div class="col-xs-6 col-xs-offset-3 row">
+                <h3>Match is already finished!</h3>
+                {{ match.bets[0].username }} becomes {{ match.bets[0].reward }} €!
+            </div>
         </div>
         <hr style="width: 50%; border-width: 3px;" align="left">
     </div>
