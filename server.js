@@ -132,7 +132,6 @@ io.on('connection', function (socket) {
                     io.emit("matchInfoChanged", match);
                 });
                 //console.log(lastRequestJSON);
-                //TODO: send Data
             }
         });
     }, constants.REFRESH_RATE_IN_SECONDS * 1000);
@@ -303,10 +302,14 @@ function init() {
     for (var i = 0; i < testBets.bets.length; i++) {
         addBet(testBets.bets[i]);
     }
+    BetDB.remove({}, function(err){
+        console.log("collection removed");
+    });
+
     console.log(JSON.stringify(betsMatchMap));
 }
 
 http.listen(serverPort, function () {
     console.log('listening on port:' + serverPort);
     init();
-}); 
+});
